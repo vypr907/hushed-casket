@@ -19,10 +19,10 @@ provider "vsphere" {
 module "vshpere_vm_dc" {
   source = "./modules/vsphere_vm_dc"
 
-  datacenter             = var.datacenter_name
-  datastore              = var.datastore_name
-  cluster                = var.cluster_name
-  network                = var.network_name
+  datacenter             = var.datacenter
+  datastore              = var.datastore
+  cluster                = var.cluster
+  network                = var.network
   vm_name                = var.vm_name
   iso_path               = var.iso_path
   iso_path_is_datastore  = var.iso_path_is_datastore
