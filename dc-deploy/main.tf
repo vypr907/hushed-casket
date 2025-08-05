@@ -1,0 +1,44 @@
+terraform {
+    required_providers {
+      vsphere = {
+        source  = "hashicorp/vsphere"
+        version = ">= 2.2.0"
+      }
+    }
+}
+
+provider "vsphere" {
+  user           = var.vsphere_user
+  password       = var.vsphere_password
+  vsphere_server = var.vsphere_server
+
+  # If you have a self-signed cert
+  allow_unverified_ssl = true
+}
+
+module "vshpere_vm_dc" {
+  source = "./modules/vsphere_vm_dc"
+
+  datacenter             = var.datacenter_name
+  datastore              = var.datastore_name
+  cluster                = var.cluster_name
+  network                = var.network_name
+  vm_name                = var.vm_name
+  iso_path               = var.iso_path
+  iso_path_is_datastore  = var.iso_path_is_datastore
+  floppy_path            = var.floppy_path
+  vm_fqdn                = var.vm_fqdn
+  vm_expected_ip         = var.vm_expected_ip
+}
+
+module "dns_check" {
+  source = "./modules/dns_check"
+
+  vm_fqdn        = var.vm_fqdn
+  vm_expected_ip = var.vm_expected_ip
+  depends_on = [ module.vshpere_vm_dc ]
+}
+
+output "dc_vm_ip" {
+  value = module.vshpere_vm_dc.vm_ip
+}
