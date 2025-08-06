@@ -11,6 +11,7 @@ resource "vsphere_virtual_machine" "dc_vm" {
   name             = var.vm_name
   resource_pool_id = data.vsphere_host.host.resource_pool_id
   datastore_id     = data.vsphere_datastore.datastore.id
+  host_system_id   = data.vsphere_host.host.id
 
   num_cpus = 2
   memory   = 4096
@@ -79,12 +80,12 @@ data "vsphere_datastore" "datastore" {
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
-data "vsphere_compute_cluster" "cluster" {
-  name          = var.cluster
+data "vsphere_network" "network" {
+  name          = var.network
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
-data "vsphere_network" "network" {
-  name          = var.network
+data "vsphere_host" "host" {
+  name          = var.host
   datacenter_id = data.vsphere_datacenter.dc.id
 }

@@ -8,8 +8,8 @@ variable "datastore" {
   type        = string
 }
 
-variable "cluster" {
-  description = "vSphere cluster name"
+variable "host" {
+  description = "vSphere host name"
   type        = string
 }
 
