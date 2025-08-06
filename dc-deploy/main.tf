@@ -14,7 +14,7 @@ provider "vsphere" {
   vsphere_server = var.vsphere_server
 
   # If you have a self-signed cert
-  #allow_unverified_ssl = true
+  allow_unverified_ssl = true
 }
 
 module "vsphere_vm_dc" {
@@ -32,7 +32,6 @@ module "vsphere_vm_dc" {
   domain_name            = var.domain_name
   vm_admin_user          = var.vm_admin_user
   vm_admin_password      = var.vm_admin_password
-  resource_pool_id       = var.resource_pool_id
 }
 
 module "dns_check" {
