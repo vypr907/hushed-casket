@@ -28,11 +28,6 @@ variable "iso_path" {
   type        = string
 }
 
-variable "floppy_path" {
-  description = "Path to floppy image with unattend scripts"
-  type        = string
-}
-
 variable "vm_fqdn" {
   description = "Fully qualified domain name for the Domain Controller"
   type        = string

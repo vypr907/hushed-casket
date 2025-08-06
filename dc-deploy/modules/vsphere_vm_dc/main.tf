@@ -34,15 +34,6 @@ resource "vsphere_virtual_machine" "dc_vm" {
     client_device = !var.iso_path_is_datastore
   }
 
-  floppy {
-    datastore_id = data.vsphere_datastore.datastore_id
-    path         = var.floppy_path
-  }
-
-  extra_config = {
-    "floppy0.present" = "TRUE"
-  }
-
 wait_for_guest_net_timeout = 10
   wait_for_guest_ip_timeout   = 10
 
@@ -51,7 +42,6 @@ wait_for_guest_net_timeout = 10
       network_interface,
       disk,
       cdrom,
-      floppy,
     ]
   }
 
