@@ -29,7 +29,7 @@ resource "vsphere_virtual_machine" "dc_vm" {
   }
 
   cdrom {
-    datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore_id : null
+    datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore : null
     path         = var.iso_path 
     client_device = !var.iso_path_is_datastore
   }
