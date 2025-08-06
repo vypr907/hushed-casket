@@ -64,20 +64,20 @@ wait_for_guest_net_timeout = 10
 }
 
 data "vsphere_datacenter" "dc" {
-  name = var.datacenter_name
+  name = var.datacenter
 }
 
 data "vsphere_datastore" "datastore" {
-  name          = var.datastore_name
+  name          = var.datastore
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_compute_cluster" "cluster" {
-  name          = var.cluster_name
+  name          = var.cluster
   datacenter_id = data.vsphere_datacenter.dc.id
 }
 
 data "vsphere_network" "network" {
-  name          = var.network_name
+  name          = var.network
   datacenter_id = data.vsphere_datacenter.dc.id
 }
