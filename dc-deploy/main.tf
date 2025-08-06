@@ -37,9 +37,9 @@ module "dns_check" {
 
   vm_fqdn        = var.vm_fqdn
   vm_expected_ip = var.vm_expected_ip
-  depends_on = [ module.vshpere_vm_dc ]
+  depends_on = [ module.vsphere_vm_dc ]
 }
 
 output "dc_vm_ip" {
-  value = module.vshpere_vm_dc.vm_ip
+  value = module.vsphere_vm_dc.vm_ip
 }
