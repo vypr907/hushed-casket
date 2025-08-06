@@ -10,7 +10,7 @@ terraform {
 resource "vsphere_virtual_machine" "dc_vm" {
   name             = var.vm_name
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
-  datastore_id     = data.vsphere_datastore.datastore_id
+  datastore_id     = data.vsphere_datastore.datastore
 
   num_cpus = 2
   memory   = 4096
@@ -18,7 +18,7 @@ resource "vsphere_virtual_machine" "dc_vm" {
 
 
   network_interface {
-    network_id   = data.vsphere_network.network_id
+    network_id   = data.vsphere_network.network
   }
 
   disk {
@@ -63,9 +63,9 @@ wait_for_guest_net_timeout = 10
   }
 
   depends_on = [
-    data.vsphere_compute_cluster,
-    data.vsphere_datastore,
-    data.vsphere_network,
+    data.vsphere_compute_cluster.cluster,
+    data.vsphere_datastore.datastore,
+    data.vsphere_network.network,
   ]
   
 }
