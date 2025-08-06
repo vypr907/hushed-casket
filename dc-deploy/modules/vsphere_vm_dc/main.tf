@@ -1,3 +1,12 @@
+terraform {
+  required_version = ">= 1.3.0"
+    required_providers {
+        vsphere = {
+        source  = "hashicorp/vsphere"
+        version = ">= 2.2.0"
+        }
+    }
+}
 resource "vsphere_virtual_machine" "dc_vm" {
   name             = var.vm_name
   resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
