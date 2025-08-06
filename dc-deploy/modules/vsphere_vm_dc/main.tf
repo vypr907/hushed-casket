@@ -1,6 +1,6 @@
 resource "vsphere_virtual_machine" "dc_vm" {
   name             = var.vm_name
-  resource_pool_id = data.vsphere_compute_cluster.resource_pool_id
+  resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
   datastore_id     = data.vsphere_datastore.datastore_id
 
   num_cpus = 2
@@ -34,8 +34,8 @@ resource "vsphere_virtual_machine" "dc_vm" {
     "floppy0.present" = "TRUE"
   }
 
-wait_for_guest_net_timeout = 5
-  wait_for_guest_ip_timeout   = 5
+wait_for_guest_net_timeout = 10
+  wait_for_guest_ip_timeout   = 10
 
   lifecycle {
     ignore_changes = [
