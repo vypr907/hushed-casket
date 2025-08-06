@@ -9,8 +9,8 @@ terraform {
 }
 resource "vsphere_virtual_machine" "dc_vm" {
   name             = var.vm_name
-  resource_pool_id = data.vsphere_compute_cluster.cluster.resource_pool_id
-  datastore_id     = data.vsphere_datastore.datastore
+  resource_pool_id = data.vsphere_host.host.resource_pool_id
+  datastore_id     = data.vsphere_datastore.datastore.id
 
   num_cpus = 2
   memory   = 4096
@@ -18,7 +18,7 @@ resource "vsphere_virtual_machine" "dc_vm" {
 
 
   network_interface {
-    network_id   = data.vsphere_network.network
+    network_id   = data.vsphere_network.network.id
   }
 
   disk {
@@ -29,7 +29,7 @@ resource "vsphere_virtual_machine" "dc_vm" {
   }
 
   cdrom {
-    datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore : null
+    datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore.id : null
     path         = var.iso_path 
     client_device = !var.iso_path_is_datastore
   }
@@ -52,7 +52,7 @@ resource "vsphere_virtual_machine" "dc_vm" {
   }
 
 wait_for_guest_net_timeout = 10
-  wait_for_guest_ip_timeout   = 10
+wait_for_guest_ip_timeout   = 10
 
   lifecycle {
     ignore_changes = [
@@ -63,7 +63,7 @@ wait_for_guest_net_timeout = 10
   }
 
   depends_on = [
-    data.vsphere_compute_cluster.cluster,
+    data.vsphere_host.host,
     data.vsphere_datastore.datastore,
     data.vsphere_network.network,
   ]

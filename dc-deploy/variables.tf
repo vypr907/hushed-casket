@@ -24,8 +24,8 @@ variable "datastore" {
   type        = string
 }
 
-variable "cluster" {
-  description = "Name of the vSphere compute cluster"
+variable "host" {
+  description = "Name of the vSphere host"
   type        = string
 }
 
