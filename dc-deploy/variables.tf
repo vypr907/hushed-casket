@@ -76,3 +76,15 @@ variable "domain_name" {
   type        = string
   default = "example.com"
 }
+
+variable "vm_admin_user" {
+  description = "Admin username for the VM"
+  type        = string
+  default     = "Administrator"
+}
+variable "vm_admin_password" {
+  description = "Admin password for the VM"
+  type        = string
+  sensitive   = true
+  default     = "P@ssw0rd!"
+}

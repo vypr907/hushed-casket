@@ -27,9 +27,11 @@ module "vsphere_vm_dc" {
   vm_name                = var.vm_name
   iso_path               = var.iso_path
   iso_path_is_datastore  = var.iso_path_is_datastore
-  floppy_path            = var.floppy_path
   vm_fqdn                = var.vm_fqdn
   vm_expected_ip         = var.vm_expected_ip
+  domain_name            = var.domain_name
+  vm_admin_user          = var.vm_admin_user
+  vm_admin_password      = var.vm_admin_password
 }
 
 module "dns_check" {
