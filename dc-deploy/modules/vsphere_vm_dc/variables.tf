@@ -43,3 +43,18 @@ variable "iso_path_is_datastore" {
   type        = bool
   default     = true
 }
+
+variable "vm_admin_user" {
+  description = "vSphere username"
+  type        = string
+}
+
+variable "vm_admin_password" {
+  description = "vSphere password"
+  type        = string
+}
+
+variable "domain_name" {
+  description = "Domain name for the Domain Controller"
+  type        = string
+}

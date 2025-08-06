@@ -3,7 +3,7 @@ terraform {
     required_providers {
         vsphere = {
         source  = "hashicorp/vsphere"
-        version = ">= 2.2.0"
+        version = ">= 2.8.1"
         }
     }
 }
@@ -32,6 +32,23 @@ resource "vsphere_virtual_machine" "dc_vm" {
     datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore_id : null
     path         = var.iso_path 
     client_device = !var.iso_path_is_datastore
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools",
+      "Install-ADDSForest -DomainName '${var.domain_name}' -InstallDns -Force -NoRebootOnCompletion",
+      "Write-Output 'Domain Controller setup completed.'"
+    ]
+    connection {
+      type        = "winrm"
+      host        = self.default_ip_address
+      user        = var.vm_admin_user
+      password    = var.vm_admin_password
+      timeout     = "10m"
+      https       = true
+      insecure    = true
+    }
   }
 
 wait_for_guest_net_timeout = 10
