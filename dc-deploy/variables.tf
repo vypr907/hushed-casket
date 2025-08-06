@@ -50,11 +50,6 @@ variable "iso_path_is_datastore" {
   default     = false
 }
 
-variable "floppy_path" {
-  description = "Path to the floppy image with unattend scriptes for the VM"
-  type        = string
-}
-
 variable "vm_fqdn" {
   description = "Fully qualified domain name of the VM"
   type        = string
