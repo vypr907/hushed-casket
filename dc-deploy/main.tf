@@ -5,6 +5,7 @@ terraform {
         version = ">= 2.2.0"
       }
     }
+    required_version = ">= 1.0.0"
 }
 
 provider "vsphere" {
@@ -16,7 +17,7 @@ provider "vsphere" {
   allow_unverified_ssl = true
 }
 
-module "vshpere_vm_dc" {
+module "vsphere_vm_dc" {
   source = "./modules/vsphere_vm_dc"
 
   datacenter             = var.datacenter
