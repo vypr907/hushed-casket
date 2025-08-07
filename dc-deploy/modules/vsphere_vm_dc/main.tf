@@ -29,19 +29,23 @@ resource "vsphere_virtual_machine" "dc_vm" {
     thin_provisioned = true
   }
 
+  # ISO for Windows Server 2022 installation
+  # If iso_path_is_datastore is true, the ISO is expected to be in the datastore
+  # If false, it will be mounted from the local machine
   cdrom {
     datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore.id : null
     path         = var.iso_path 
     client_device = !var.iso_path_is_datastore
   }
 
+  # ISO for VMware Tools installation
+  # This assumes the ISO is in the datastore
   cdrom {
     client_device = false
     datastore_id = data.vsphere_datastore.datastore.id
     path = "[datastore1] ISO_OVA/VMware-tools-windows-12.5.0-24276846.iso"
   }
-  customization_spec_id = data.vsphere_customization_spec.tools_install.id
-
+  
   provisioner "remote-exec" {
     inline = [
       "Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools",
@@ -82,9 +86,6 @@ data "vsphere_datacenter" "dc" {
   name = var.datacenter
 }
 
-data "vsphere_customization_spec" "tools_install" {
-  name          = "vmtools-auto-install"
-}
 
 data "vsphere_datastore" "datastore" {
   name          = var.datastore
