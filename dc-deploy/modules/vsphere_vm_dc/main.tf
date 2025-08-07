@@ -2,7 +2,7 @@ terraform {
   required_version = ">= 1.3.0"
     required_providers {
         vsphere = {
-        source  = "hashicorp/vsphere"
+        source  = "vmware/vsphere"
         version = ">= 2.8.1"
         }
     }
@@ -10,7 +10,7 @@ terraform {
 resource "vsphere_virtual_machine" "dc_vm" {
   name             = var.vm_name
   resource_pool_id = data.vsphere_host.host.resource_pool_id
-  datastore_id     = data.vsphere_datastore.datastore.id
+  datastore_id     = var.datastore
   host_system_id   = data.vsphere_host.host.id
 
   num_cpus = 2
@@ -46,6 +46,15 @@ resource "vsphere_virtual_machine" "dc_vm" {
     path = "[datastore1] ISO_OVA/VMware-tools-windows-12.5.0-24276846.iso"
   }
   
+  cdrom {
+    client_device = false
+    datastore_id  = var.datastore
+    path          = vsphere_file.autounattend_floppy.destination_file
+  }
+
+  extra_config = {
+    "bios.bootOrder" = "cdrom,network,hd"
+  }
   provisioner "remote-exec" {
     inline = [
       "Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools",
@@ -101,3 +110,36 @@ data "vsphere_host" "host" {
   name          = var.host
   datacenter_id = data.vsphere_datacenter.dc.id
 }
+
+data "template_file" "autounattend" {
+    template = file("${path.module}/scripts/autounattend_template.xml")
+    vars = {
+      vm_name            = var.vm_name
+      domain_name        = var.domain_name
+      vm_admin_user      = var.vm_admin_user
+      vm_admin_password  = var.vm_admin_password
+    }
+  }
+
+  resource "local_file" "autounattend_xml" {
+    content  = data.template_file.autounattend.rendered
+    filename = "${path.module}/scripts/autounattend.xml"
+  }
+
+  resource "null_resource" "create_floppy" {
+    provisioner "local-exec" {
+      command = <<EOT
+      mkdosfs -C ${path.module}/autounattend.flp 1440
+      mcopy -i ${path.module}/autounattend.flp ${path.module}/autounattend.xml ::
+      EOT
+    }
+    depends_on = [local_file.autounattend_xml]
+  }
+
+  resource "vsphere_file" "autounattend_floppy" {
+    datacenter = var.datacenter
+    datastore  = var.datastore
+    source_file     = "${path.module}/autounattend.flp"
+    destination_file = "autounattend.flp"
+    depends_on = [null_resource.create_floppy]
+  }
