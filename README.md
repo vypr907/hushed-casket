@@ -55,4 +55,8 @@ This module performs an `nslookup` after provisioning to confirm the FQDN resolv
 - Floppy image should contain unattend scripts and domain join automation.
 - Use the DNS module optionally for verification; it depends on a working DNS infrastructure.
 
+### Current Status
+- Main branch code will spin up a VM based off of a WinServer2022 ISO with minimal configuration. Will include documentation of needed steps in order to complete promotion of server to Domain Controller.
+- Dev branch of code is working on cleaning up code and documentation
+- Packer branch is further work on fully automating the process so that this project can be used with a standard ISO to create our custom DNS.
 ---
