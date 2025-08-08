@@ -46,10 +46,16 @@ resource "vsphere_virtual_machine" "dc_vm" {
     path          = "[${var.datastore}] ISO_OVA/autounattend.iso"
   }
 
+  # Set boot order to CDROM, then Disk
+  extra_config = {
+    "bios.bootOrder" = "cdrom, disk"
+  }
+
   provisioner "remote-exec" {
     inline = [
       # Download VMware Tools installer
-      "$url = 'http://${var.host}:8000/vmtools/setup64.exe",
+      #"$url = 'http://${var.host}:8000/vmtools/setup64.exe",
+      "$url = 'http://192.168.0.41:8000/vmtools/setup64.exe'", #using local host hardcoded temporarily
       "$dest = 'C:\\Windows\\Temp\\vmtools_setup64.exe'",
       "Invoke-WebRequest -Uri $url -OutFile $dest",
       # Install VMware Tools silently
