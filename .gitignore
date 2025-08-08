@@ -40,4 +40,7 @@ terraform.rc
 *.pkrvars.hcl
 
 # Ignore http folder
-http/
+#http/
+
+# Ignore setup64.exe
+http/vmtools/setup64.exe
