@@ -34,21 +34,29 @@ resource "vsphere_virtual_machine" "dc_vm" {
   # If iso_path_is_datastore is true, the ISO is expected to be in the datastore
   # If false, it will be mounted from the local machine
   cdrom {
-    datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore.id : null
-    path         = var.iso_path 
+    datastore_id  = var.iso_path_is_datastore ? data.vsphere_datastore.datastore.id : null
+    path          = var.iso_path
     client_device = !var.iso_path_is_datastore
   }
 
-  # ISO for VMware Tools installation
-  # This assumes the ISO is in the datastore
+  # ISO for autounattend.xml
   cdrom {
     client_device = false
-    datastore_id = data.vsphere_datastore.datastore.id
-    path = "[${var.datastore}] ISO_OVA/VMware-tools-windows-12.5.0-24276846.iso"
+    datastore_id  = data.vsphere_datastore.datastore.id
+    path          = "[${var.datastore}] ISO_OVA/autounattend.iso"
   }
 
   provisioner "remote-exec" {
     inline = [
+      # Download VMware Tools installer
+      "$url = 'http://${var.host}:8000/vmtools/setup64.exe",
+      "$dest = 'C:\\Windows\\Temp\\vmtools_setup64.exe'",
+      "Invoke-WebRequest -Uri $url -OutFile $dest",
+      # Install VMware Tools silently
+      "Start-Process -FilePath $dest -ArgumentList '/S /v\"/qn REBOOT=R\"' -Wait",
+      # Remove the installer after installation
+      "Remove-Item $dest",
+      # Install Active Directory Domain Services
       "Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools",
       "Install-ADDSForest -DomainName '${var.domain_name}' -InstallDns -Force -NoRebootOnCompletion",
       "Write-Output 'Domain Controller setup completed.'"
@@ -86,7 +94,6 @@ wait_for_guest_ip_timeout   = 10
 data "vsphere_datacenter" "dc" {
   name = var.datacenter
 }
-
 
 data "vsphere_datastore" "datastore" {
   name          = var.datastore
