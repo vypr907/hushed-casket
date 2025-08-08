@@ -10,16 +10,17 @@ terraform {
 resource "vsphere_virtual_machine" "dc_vm" {
   name             = var.vm_name
   resource_pool_id = data.vsphere_host.host.resource_pool_id
-  datastore_id     = var.datastore
+  datastore_id     = data.vsphere_datastore.datastore.id
   host_system_id   = data.vsphere_host.host.id
 
   num_cpus = 2
   memory   = 4096
-  guest_id = "windows2019srv_64Guest"
+  guest_id = "windows9Server64Guest"
 
 
   network_interface {
     network_id   = data.vsphere_network.network.id
+    adapter_type = "vmxnet3"
   }
 
   disk {
@@ -33,30 +34,34 @@ resource "vsphere_virtual_machine" "dc_vm" {
   # If iso_path_is_datastore is true, the ISO is expected to be in the datastore
   # If false, it will be mounted from the local machine
   cdrom {
-    datastore_id = var.iso_path_is_datastore ? data.vsphere_datastore.datastore.id : null
-    path         = var.iso_path 
+    datastore_id  = var.iso_path_is_datastore ? data.vsphere_datastore.datastore.id : null
+    path          = var.iso_path
     client_device = !var.iso_path_is_datastore
   }
 
-  # ISO for VMware Tools installation
-  # This assumes the ISO is in the datastore
+  # ISO for autounattend.xml
   cdrom {
     client_device = false
-    datastore_id = data.vsphere_datastore.datastore.id
-    path = "[datastore1] ISO_OVA/VMware-tools-windows-12.5.0-24276846.iso"
-  }
-  
-  cdrom {
-    client_device = false
-    datastore_id  = var.datastore
-    path          = vsphere_file.autounattend_floppy.destination_file
+    datastore_id  = data.vsphere_datastore.datastore.id
+    path          = "[${var.datastore}] ISO_OVA/autounattend.iso"
   }
 
+  # Set boot order to CDROM, then Disk
   extra_config = {
-    "bios.bootOrder" = "cdrom,network,hd"
+    "bios.bootOrder" = "cdrom, disk"
   }
+
   provisioner "remote-exec" {
     inline = [
+      # Download VMware Tools installer
+      "$url = 'http://${var.local_host}:8000/vmtools/setup64.exe'",
+      "$dest = 'C:\\Windows\\Temp\\vmtools_setup64.exe'",
+      "Invoke-WebRequest -Uri $url -OutFile $dest",
+      # Install VMware Tools silently
+      "Start-Process -FilePath $dest -ArgumentList '/S /v\"/qn REBOOT=R\"' -Wait",
+      # Remove the installer after installation
+      "Remove-Item $dest",
+      # Install Active Directory Domain Services
       "Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools",
       "Install-ADDSForest -DomainName '${var.domain_name}' -InstallDns -Force -NoRebootOnCompletion",
       "Write-Output 'Domain Controller setup completed.'"
@@ -95,7 +100,6 @@ data "vsphere_datacenter" "dc" {
   name = var.datacenter
 }
 
-
 data "vsphere_datastore" "datastore" {
   name          = var.datastore
   datacenter_id = data.vsphere_datacenter.dc.id
@@ -110,36 +114,3 @@ data "vsphere_host" "host" {
   name          = var.host
   datacenter_id = data.vsphere_datacenter.dc.id
 }
-
-data "template_file" "autounattend" {
-    template = file("${path.module}/scripts/autounattend_template.xml")
-    vars = {
-      vm_name            = var.vm_name
-      domain_name        = var.domain_name
-      vm_admin_user      = var.vm_admin_user
-      vm_admin_password  = var.vm_admin_password
-    }
-  }
-
-  resource "local_file" "autounattend_xml" {
-    content  = data.template_file.autounattend.rendered
-    filename = "${path.module}/scripts/autounattend.xml"
-  }
-
-  resource "null_resource" "create_floppy" {
-    provisioner "local-exec" {
-      command = <<EOT
-      mkdosfs -C ${path.module}/autounattend.flp 1440
-      mcopy -i ${path.module}/autounattend.flp ${path.module}/autounattend.xml ::
-      EOT
-    }
-    depends_on = [local_file.autounattend_xml]
-  }
-
-  resource "vsphere_file" "autounattend_floppy" {
-    datacenter = var.datacenter
-    datastore  = var.datastore
-    source_file     = "${path.module}/autounattend.flp"
-    destination_file = "autounattend.flp"
-    depends_on = [null_resource.create_floppy]
-  }

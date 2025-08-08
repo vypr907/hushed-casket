@@ -29,6 +29,11 @@ variable "host" {
   type        = string
 }
 
+variable "local_host" {
+  description = "Local host IP address for temporary hardcoding"
+  type        = string
+}
+
 variable "network" {
   description = "Name of the vSphere network"
   type        = string

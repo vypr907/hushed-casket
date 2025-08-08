@@ -38,3 +38,9 @@ terraform.rc
 
 # Ignore Packer pkrvars files
 *.pkrvars.hcl
+
+# Ignore http folder
+#http/
+
+# Ignore setup64.exe
+http/vmtools/setup64.exe
