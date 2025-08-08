@@ -23,6 +23,7 @@ module "vsphere_vm_dc" {
   datacenter             = var.datacenter
   datastore              = var.datastore
   host                   = var.host
+  local_host             = var.local_host
   network                = var.network
   vm_name                = var.vm_name
   iso_path               = var.iso_path
