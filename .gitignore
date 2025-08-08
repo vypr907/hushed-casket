@@ -38,3 +38,6 @@ terraform.rc
 
 # Ignore Packer pkrvars files
 *.pkrvars.hcl
+
+# Ignore local autounattend file
+autounattend.xml

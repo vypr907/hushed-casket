@@ -1,2 +1,0 @@
-Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools
-Install-ADDSForest -DomainName "${domain_name}" -InstallDns -SafeModeAdministratorPassword (ConvertTo-SecureString "${admin_password}" -AsPlainText -Force) -Force
